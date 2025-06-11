@@ -14,7 +14,9 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "expo.modules.storesgamesservices.example"
+      "bundleIdentifier": "com.toilet.cryptogram",
+      "appleTeamId": "HZTYYDC4WH",
+      "entitlements": { "com.apple.developer.game-center": true }
     },
     "android": {
       "adaptiveIcon": {

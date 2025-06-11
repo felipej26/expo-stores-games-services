@@ -1,73 +1,21 @@
-import { useEvent } from 'expo';
-import ExpoStoresGamesServices, { ExpoStoresGamesServicesView } from 'expo-stores-games-services';
-import { Button, SafeAreaView, ScrollView, Text, View } from 'react-native';
+import { hello, showLeaderboard, signIn } from "expo-stores-games-services";
+import { useEffect } from "react";
+import { Button, Text, View } from "react-native";
 
 export default function App() {
-  const onChangePayload = useEvent(ExpoStoresGamesServices, 'onChange');
-
+  useEffect(() => {
+    signIn()
+      .then(() => console.log("Signed in successfully"))
+      .catch((error) => console.error("Sign in failed", error));
+  }, []);
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.container}>
-        <Text style={styles.header}>Module API Example</Text>
-        <Group name="Constants">
-          <Text>{ExpoStoresGamesServices.PI}</Text>
-        </Group>
-        <Group name="Functions">
-          <Text>{ExpoStoresGamesServices.hello()}</Text>
-        </Group>
-        <Group name="Async functions">
-          <Button
-            title="Set value"
-            onPress={async () => {
-              await ExpoStoresGamesServices.setValueAsync('Hello from JS!');
-            }}
-          />
-        </Group>
-        <Group name="Events">
-          <Text>{onChangePayload?.value}</Text>
-        </Group>
-        <Group name="Views">
-          <ExpoStoresGamesServicesView
-            url="https://www.example.com"
-            onLoad={({ nativeEvent: { url } }) => console.log(`Loaded: ${url}`)}
-            style={styles.view}
-          />
-        </Group>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
+    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+      <Text>Theme: {hello()}</Text>
 
-function Group(props: { name: string; children: React.ReactNode }) {
-  return (
-    <View style={styles.group}>
-      <Text style={styles.groupHeader}>{props.name}</Text>
-      {props.children}
+      <Button
+        title="Show Leaderboard"
+        onPress={() => showLeaderboard("cryptogram.lib.main")}
+      />
     </View>
   );
 }
-
-const styles = {
-  header: {
-    fontSize: 30,
-    margin: 20,
-  },
-  groupHeader: {
-    fontSize: 20,
-    marginBottom: 20,
-  },
-  group: {
-    margin: 20,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 20,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#eee',
-  },
-  view: {
-    flex: 1,
-    height: 200,
-  },
-};
