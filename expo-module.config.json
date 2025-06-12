@@ -1,9 +1,11 @@
 {
-  "platforms": ["apple", "android", "web"],
+  "platforms": ["apple", "android"],
   "apple": {
     "modules": ["ExpoStoresGamesServicesModule"]
   },
   "android": {
-    "modules": ["expo.modules.storesgamesservices.ExpoStoresGamesServicesModule"]
+    "modules": [
+      "expo.modules.storesgamesservices.ExpoStoresGamesServicesModule"
+    ]
   }
 }

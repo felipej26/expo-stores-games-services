@@ -41,40 +41,46 @@ public class ExpoStoresGamesServicesModule:  Module {
             }
         }
         
-        Function("showLeaderboard") { (leaderboardID: String) in
-            GKLeaderboard.loadLeaderboards(IDs: [leaderboardID]) { leaderboards, error in
-                if let error = error {
-                    print("Failed to load leaderboard:", error.localizedDescription)
-                    return
-                }
-                
-                guard let leaderboard = leaderboards?.first else {
-                    print("Leaderboard not found")
-                    return
-                }
-                
-                DispatchQueue.main.async {
-                    let viewController = GKGameCenterViewController()
-                    viewController.gameCenterDelegate = GameCenterDelegate.shared
+        AsyncFunction("showLeaderboard") { (leaderboardID: String) async throws -> [String: Any] in
+            return try await withCheckedThrowingContinuation { continuation in
+                GKLeaderboard.loadLeaderboards(IDs: [leaderboardID]) { leaderboards, error in
+                    if let error = error {
+                        print("Failed to load leaderboard:", error.localizedDescription)
+                        return
+                    }
                     
-                    if let rootVC = UIApplication.shared.delegate?.window??.rootViewController {
-                        rootVC.present(viewController, animated: true, completion: nil)
-                    } else {
-                        print("No root view controller available")
+                    guard let leaderboard = leaderboards?.first else {
+                        print("Leaderboard not found")
+                        return
+                    }
+                    
+                    DispatchQueue.main.async {
+                        let viewController = GKGameCenterViewController()
+                        viewController.gameCenterDelegate = GameCenterDelegate.shared
+                        
+                        if let rootVC = UIApplication.shared.delegate?.window??.rootViewController {
+                            rootVC.present(viewController, animated: true, completion: nil)
+                        } else {
+                            print("No root view controller available")
+                        }
+                        
+                        return
                     }
                 }
             }
         }
         
-        Function("submitScore") { (score: Int, leaderboardID: String) in
-            
-            Task{
-                try await GKLeaderboard.submitScore(
-                    score,
-                    context: 0,
-                    player: GKLocalPlayer.local,
-                    leaderboardIDs: [leaderboardID]
-                )
+        AsyncFunction("submitScore") { (score: Int, leaderboardID: String) async throws -> [String: Any] in
+            return try await withCheckedThrowingContinuation { continuation in
+                Task{
+                    try await GKLeaderboard.submitScore(
+                        score,
+                        context: 0,
+                        player: GKLocalPlayer.local,
+                        leaderboardIDs: [leaderboardID]
+                    )
+                }
+                return
             }
         }
         
