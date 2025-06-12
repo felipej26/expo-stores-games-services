@@ -5,13 +5,19 @@ export function signIn(): Promise<void> {
   return ExpoStoresGamesServicesModule.signIn();
 }
 
-export function showLeaderboard(leaderboardId: string): Promise<void> {
+export function showLeaderboard(leaderboardId: string) {
   return ExpoStoresGamesServicesModule.showLeaderboard(leaderboardId);
 }
 
-export function submitScore(
-  score: number,
-  leaderboardId: string
-): Promise<void> {
+export function submitScore(score: number, leaderboardId: string) {
   return ExpoStoresGamesServicesModule.submitScore(score, leaderboardId);
+}
+
+export function getUserScore(leaderboardId: string): Promise<{
+  score: number;
+  rank: number;
+  formattedScore: string;
+  context: any;
+}> {
+  return ExpoStoresGamesServicesModule.getUserScore(leaderboardId);
 }

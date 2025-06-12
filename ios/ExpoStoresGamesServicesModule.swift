@@ -67,15 +67,43 @@ public class ExpoStoresGamesServicesModule:  Module {
         }
         
         Function("submitScore") { (score: Int, leaderboardID: String) in
-            let scoreReporter = GKScore(leaderboardIdentifier: leaderboardID)
-            scoreReporter.value = Int64(score)
-            scoreReporter.context = 0
             
-            GKScore.report([scoreReporter]) { error in
-                if let error = error {
-                    print("Error submitting score: \(error.localizedDescription)")
-                } else {
-                    print("Score submitted successfully")
+            Task{
+                try await GKLeaderboard.submitScore(
+                    score,
+                    context: 0,
+                    player: GKLocalPlayer.local,
+                    leaderboardIDs: [leaderboardID]
+                )
+            }
+        }
+        
+        AsyncFunction("getUserScore") { (leaderboardID: String) async throws -> [String: Any] in
+            return try await withCheckedThrowingContinuation { continuation in
+                
+                GKLeaderboard.loadLeaderboards(IDs: [leaderboardID]) { leaderboards, _ in
+                    leaderboards?[0].loadEntries(
+                        for: [GKLocalPlayer.local],
+                        timeScope: .allTime)
+                    { localPlayerEntry, entries, error  in
+                        
+                        if let error = error {
+                            continuation.resume(throwing: error)
+                            return
+                        }
+                        
+                        guard let entry = localPlayerEntry else {
+                            continuation.resume(returning: [:]) // No score submitted
+                            return
+                        }
+                        
+                        continuation.resume(returning: [
+                            "score": entry.score,
+                            "rank": entry.rank,
+                            "formattedScore": entry.formattedScore,
+                            "context": entry.context
+                        ])
+                    }
                 }
             }
         }
