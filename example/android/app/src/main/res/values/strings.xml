@@ -2,4 +2,6 @@
   <string name="app_name">expo-stores-games-services-example</string>
   <string name="expo_splash_screen_resize_mode" translatable="false">contain</string>
   <string name="expo_splash_screen_status_bar_translucent" translatable="false">false</string>
+
+  <string translatable="false"  name="game_services_project_id">625053534761</string>
 </resources>

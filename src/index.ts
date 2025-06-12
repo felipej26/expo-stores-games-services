@@ -5,11 +5,14 @@ export function signIn(): Promise<void> {
   return ExpoStoresGamesServicesModule.signIn();
 }
 
-export function showLeaderboard(leaderboardId: string) {
+export function showLeaderboard(leaderboardId: string): Promise<void> {
   return ExpoStoresGamesServicesModule.showLeaderboard(leaderboardId);
 }
 
-export function submitScore(score: number, leaderboardId: string) {
+export function submitScore(
+  score: number,
+  leaderboardId: string
+): Promise<void> {
   return ExpoStoresGamesServicesModule.submitScore(score, leaderboardId);
 }
 

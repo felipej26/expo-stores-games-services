@@ -24,7 +24,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "expo.modules.storesgamesservices.example"
+      "package": "com.toilet.cryptogram"
     },
     "web": {
       "favicon": "./assets/favicon.png"

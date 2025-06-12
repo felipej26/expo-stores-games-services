@@ -9,8 +9,8 @@ type UserScore = {
 
 declare class ExpoStoresGamesServicesModule extends NativeModule {
   signIn(): Promise<void>;
-  showLeaderboard(leaderboardId: string): void;
-  submitScore(score: number, leaderboardId: string): void;
+  showLeaderboard(leaderboardId: string): Promise<void>;
+  submitScore(score: number, leaderboardId: string): Promise<void>;
   getUserScore(leaderboardId: string): Promise<UserScore>;
 }
 
