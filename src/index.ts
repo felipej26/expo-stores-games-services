@@ -1,12 +1,16 @@
-// Reexport the native module. On web, it will be resolved to ExpoStoresGamesServicesModule.web.ts
+import { TimeSpan } from "./constants";
 import ExpoStoresGamesServicesModule from "./ExpoStoresGamesServicesModule";
+import { UserScore } from "./types";
 
 export function signIn(): Promise<void> {
   return ExpoStoresGamesServicesModule.signIn();
 }
 
-export function showLeaderboard(leaderboardId: string): Promise<void> {
-  return ExpoStoresGamesServicesModule.showLeaderboard(leaderboardId);
+export function showLeaderboard(
+  leaderboardId: string,
+  timeSpan = TimeSpan.ALL_TIME
+): Promise<void> {
+  return ExpoStoresGamesServicesModule.showLeaderboard(leaderboardId, timeSpan);
 }
 
 export function submitScore(
@@ -16,11 +20,6 @@ export function submitScore(
   return ExpoStoresGamesServicesModule.submitScore(score, leaderboardId);
 }
 
-export function getUserScore(leaderboardId: string): Promise<{
-  score: number;
-  rank: number;
-  formattedScore: string;
-  context: any;
-}> {
+export function getUserScore(leaderboardId: string): Promise<UserScore> {
   return ExpoStoresGamesServicesModule.getUserScore(leaderboardId);
 }

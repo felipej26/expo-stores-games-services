@@ -52,7 +52,7 @@ class ExpoStoresGamesServicesModule : Module() {
       }
     }
 
-    AsyncFunction("showLeaderboard") { leaderboardId: String, promise: Promise ->
+    AsyncFunction("showLeaderboard") { leaderboardId: String, timeSpan: Int, promise: Promise ->
       val activity = appContext.currentActivity
       if (activity == null) {
         promise.reject("NO_ACTIVITY", "No current activity", null)
@@ -60,7 +60,7 @@ class ExpoStoresGamesServicesModule : Module() {
       }
 
       PlayGames.getLeaderboardsClient(activity)
-        .getLeaderboardIntent(leaderboardId)
+        .getLeaderboardIntent(leaderboardId, timeSpan)
         .addOnSuccessListener { intent ->
           pendingPromise = promise
           activity.startActivityForResult(intent, RC_LEADERBOARD_UI)
@@ -77,6 +77,8 @@ class ExpoStoresGamesServicesModule : Module() {
 
       PlayGames.getLeaderboardsClient(activity)
         .submitScore(leaderboardID, score);
+
+      promise.resolve()
     }
 
     AsyncFunction("getUserScore") { leaderboardID: String, promise: Promise -> }

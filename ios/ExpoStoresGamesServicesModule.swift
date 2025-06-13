@@ -41,7 +41,7 @@ public class ExpoStoresGamesServicesModule:  Module {
             }
         }
         
-        AsyncFunction("showLeaderboard") { (leaderboardID: String) async throws -> [String: Any] in
+        AsyncFunction("showLeaderboard") { (leaderboardID: String, timeSpan: Int) async throws -> [String: Any] in
             return try await withCheckedThrowingContinuation { continuation in
                 GKLeaderboard.loadLeaderboards(IDs: [leaderboardID]) { leaderboards, error in
                     if let error = error {

@@ -1,15 +1,10 @@
 import { NativeModule, requireNativeModule } from "expo";
-
-type UserScore = {
-  score: number;
-  rank: number;
-  formattedScore: string;
-  context: any;
-};
+import { UserScore } from "./types";
+import { TimeSpan } from "./constants";
 
 declare class ExpoStoresGamesServicesModule extends NativeModule {
   signIn(): Promise<void>;
-  showLeaderboard(leaderboardId: string): Promise<void>;
+  showLeaderboard(leaderboardId: string, timeSpan?: TimeSpan): Promise<void>;
   submitScore(score: number, leaderboardId: string): Promise<void>;
   getUserScore(leaderboardId: string): Promise<UserScore>;
 }
