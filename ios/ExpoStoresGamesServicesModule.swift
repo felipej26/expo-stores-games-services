@@ -9,8 +9,13 @@ public class ExpoStoresGamesServicesModule:  Module {
             let localPlayer = GKLocalPlayer.local
             
             return try await withCheckedThrowingContinuation { continuation in
+                var hasResumed = false
+                
                 localPlayer.authenticateHandler = { viewController, error in
+                    guard !hasResumed else { return }
+
                     if let error = error  {
+                        hasResumed = true
                         continuation.resume(throwing: error)
                         return
                     }
@@ -27,12 +32,14 @@ public class ExpoStoresGamesServicesModule:  Module {
                     }
                     
                     if localPlayer.isAuthenticated {
+                        hasResumed = true
                         continuation.resume(returning: [
                             "playerID": localPlayer.gamePlayerID,
                             "alias": localPlayer.alias,
                             "displayName": localPlayer.displayName
                         ])
                     } else {
+                        hasResumed = true
                         continuation.resume(throwing: NSError(domain: "GameCenter", code: 401, userInfo: [
                             NSLocalizedDescriptionKey: "User not authenticated"
                         ]))
