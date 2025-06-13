@@ -20,6 +20,9 @@ export function submitScore(
   return ExpoStoresGamesServicesModule.submitScore(score, leaderboardId);
 }
 
-export function getUserScore(leaderboardId: string): Promise<UserScore> {
-  return ExpoStoresGamesServicesModule.getUserScore(leaderboardId);
+export function getUserScore(
+  leaderboardId: string,
+  timeSpan = TimeSpan.ALL_TIME
+): Promise<UserScore> {
+  return ExpoStoresGamesServicesModule.getUserScore(leaderboardId, timeSpan);
 }

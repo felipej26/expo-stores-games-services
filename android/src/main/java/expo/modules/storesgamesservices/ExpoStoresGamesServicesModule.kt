@@ -81,6 +81,30 @@ class ExpoStoresGamesServicesModule : Module() {
       promise.resolve()
     }
 
-    AsyncFunction("getUserScore") { leaderboardID: String, promise: Promise -> }
+    AsyncFunction("getUserScore") { leaderboardID: String, timeSpan: Int, promise: Promise ->
+      val activity = appContext.currentActivity
+      if (activity == null) {
+        promise.reject("NO_ACTIVITY", "No current activity", null)
+        return@AsyncFunction
+      }
+
+      PlayGames.getLeaderboardsClient(activity)
+        .loadCurrentPlayerLeaderboardScore(leaderboardID, timeSpan, 0)
+        .addOnSuccessListener { intent ->
+          val scoreData = intent.get()
+
+          if (scoreData != null) {
+            val result = mapOf(
+              "score" to scoreData.rawScore,
+              "rank" to scoreData.rank,
+              "formattedScore" to scoreData.displayScore,
+              "context" to scoreData,
+            )
+            promise.resolve(result)
+          } else {
+            promise.resolve(null)
+          }
+        }
+    }
   }
 }

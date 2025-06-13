@@ -84,13 +84,13 @@ public class ExpoStoresGamesServicesModule:  Module {
             }
         }
         
-        AsyncFunction("getUserScore") { (leaderboardID: String) async throws -> [String: Any] in
+        AsyncFunction("getUserScore") { (leaderboardID: String, timeSpan: Int) async throws -> [String: Any] in
             return try await withCheckedThrowingContinuation { continuation in
                 
                 GKLeaderboard.loadLeaderboards(IDs: [leaderboardID]) { leaderboards, _ in
                     leaderboards?[0].loadEntries(
                         for: [GKLocalPlayer.local],
-                        timeScope: .allTime)
+                        timeScope: GKLeaderboard.TimeScope(rawValue: timeSpan) ?? .allTime)
                     { localPlayerEntry, entries, error  in
                         
                         if let error = error {
