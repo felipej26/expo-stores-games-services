@@ -14,8 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.toilet.cryptogram",
-      "appleTeamId": "HZTYYDC4WH",
+      "bundleIdentifier": "expo.modules.storesgamesservices.example",
       "entitlements": { "com.apple.developer.game-center": true }
     },
     "android": {
@@ -24,7 +23,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.toilet.cryptogram"
+      "package": "expo.modules.storesgamesservices.example"
     },
     "web": {
       "favicon": "./assets/favicon.png"
