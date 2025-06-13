@@ -14,8 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "expo.modules.storesgamesservices.example",
-      "entitlements": { "com.apple.developer.game-center": true }
+      "bundleIdentifier": "expo.modules.storesgamesservices.example"
     },
     "android": {
       "adaptiveIcon": {
@@ -27,6 +26,16 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "../app.plugin.js",
+        {
+          "android": {
+            "projectId": "00000000000"
+          }
+        }
+      ]
+    ]
   }
 }
