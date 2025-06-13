@@ -49,75 +49,61 @@ public class ExpoStoresGamesServicesModule:  Module {
         }
         
         AsyncFunction("showLeaderboard") { (leaderboardID: String, timeSpan: Int) async throws -> [String: Any] in
-            return try await withCheckedThrowingContinuation { continuation in
-                GKLeaderboard.loadLeaderboards(IDs: [leaderboardID]) { leaderboards, error in
-                    if let error = error {
-                        print("Failed to load leaderboard:", error.localizedDescription)
-                        return
-                    }
-                    
-                    guard let leaderboard = leaderboards?.first else {
-                        print("Leaderboard not found")
-                        return
-                    }
-                    
-                    DispatchQueue.main.async {
-                        let viewController = GKGameCenterViewController()
-                        viewController.gameCenterDelegate = GameCenterDelegate.shared
-                        
-                        if let rootVC = UIApplication.shared.delegate?.window??.rootViewController {
-                            rootVC.present(viewController, animated: true, completion: nil)
-                        } else {
-                            print("No root view controller available")
-                        }
-                        
-                        return
-                    }
+            let leaderboards = try await GKLeaderboard.loadLeaderboards(IDs: [leaderboardID])
+            
+            guard let leaderboard = leaderboards.first else {
+                throw NSError(domain: "GameCenter", code: 404, userInfo: [
+                    NSLocalizedDescriptionKey: "Leaderboard not found"
+                ])
+            }
+            
+            await MainActor.run {
+                let viewController = GKGameCenterViewController()
+                viewController.gameCenterDelegate = GameCenterDelegate.shared
+                
+                if let rootVC = UIApplication.shared.delegate?.window??.rootViewController {
+                    rootVC.present(viewController, animated: true, completion: nil)
+                } else {
+                    print("No root view controller available")
                 }
             }
+            
+            return ["status": "shown"]
         }
         
         AsyncFunction("submitScore") { (score: Int, leaderboardID: String) async throws -> [String: Any] in
-            return try await withCheckedThrowingContinuation { continuation in
-                Task{
-                    try await GKLeaderboard.submitScore(
-                        score,
-                        context: 0,
-                        player: GKLocalPlayer.local,
-                        leaderboardIDs: [leaderboardID]
-                    )
-                }
-                return
-            }
+            try await GKLeaderboard.submitScore(
+                score,
+                context: 0,
+                player: GKLocalPlayer.local,
+                leaderboardIDs: [leaderboardID]
+            )
+            return ["status": "success"]
         }
         
         AsyncFunction("getUserScore") { (leaderboardID: String, timeSpan: Int) async throws -> [String: Any] in
-            return try await withCheckedThrowingContinuation { continuation in
-                
-                GKLeaderboard.loadLeaderboards(IDs: [leaderboardID]) { leaderboards, _ in
-                    leaderboards?[0].loadEntries(
-                        for: [GKLocalPlayer.local],
-                        timeScope: GKLeaderboard.TimeScope(rawValue: timeSpan) ?? .allTime)
-                    { localPlayerEntry, entries, error  in
-                        
-                        if let error = error {
-                            continuation.resume(throwing: error)
-                            return
-                        }
-                        
-                        guard let entry = localPlayerEntry else {
-                            continuation.resume(returning: [:]) // No score submitted
-                            return
-                        }
-                        
-                        continuation.resume(returning: [
-                            "score": entry.score,
-                            "rank": entry.rank,
-                            "formattedScore": entry.formattedScore,
-                            "context": entry.context
-                        ])
-                    }
-                }
+            let leaderboards = try await GKLeaderboard.loadLeaderboards(IDs: [leaderboardID])
+            
+            guard let leaderboard = leaderboards.first else {
+                throw NSError(domain: "GameCenter", code: 404, userInfo: [
+                    NSLocalizedDescriptionKey: "Leaderboard not found"
+                ])
+            }
+            
+            let (entry, _) = try await leaderboard.loadEntries(
+                for: [GKLocalPlayer.local],
+                timeScope: GKLeaderboard.TimeScope(rawValue: timeSpan) ?? .allTime
+            )
+            
+            if let entry = entry {
+                return [
+                    "score": entry.score,
+                    "rank": entry.rank,
+                    "formattedScore": entry.formattedScore,
+                    "context": entry.context
+                ]
+            } else {
+                return [:]  // No score
             }
         }
     }
