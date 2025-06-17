@@ -15,7 +15,6 @@ public class ExpoStoresGamesServicesModule:  Module {
                     guard !hasResumed else { return }
 
                     if let error = error  {
-                        hasResumed = true
                         continuation.resume(throwing: error)
                         return
                     }
@@ -39,7 +38,6 @@ public class ExpoStoresGamesServicesModule:  Module {
                             "displayName": localPlayer.displayName
                         ])
                     } else {
-                        hasResumed = true
                         continuation.resume(throwing: NSError(domain: "GameCenter", code: 401, userInfo: [
                             NSLocalizedDescriptionKey: "User not authenticated"
                         ]))
