@@ -12,7 +12,12 @@ public class ExpoStoresGamesServicesModule:  Module {
                 var hasResumed = false
                 
                 localPlayer.authenticateHandler = { viewController, error in
-                    guard !hasResumed else { return }
+                    guard !hasResumed else {
+                        continuation.resume(throwing: NSError(domain: "GameCenter", code: 400, userInfo: [
+                            NSLocalizedDescriptionKey: "User already authenticated?"
+                        ]))
+                        return
+                    }
 
                     if let error = error  {
                         continuation.resume(throwing: error)
