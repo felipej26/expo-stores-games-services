@@ -12,14 +12,10 @@ public class ExpoStoresGamesServicesModule:  Module {
                 var hasResumed = false
                 
                 localPlayer.authenticateHandler = { viewController, error in
-                    guard !hasResumed else {
-                        continuation.resume(throwing: NSError(domain: "GameCenter", code: 400, userInfo: [
-                            NSLocalizedDescriptionKey: "User already authenticated?"
-                        ]))
-                        return
-                    }
+                    guard !hasResumed else { return }
 
                     if let error = error  {
+                        hasResumed = true
                         continuation.resume(throwing: error)
                         return
                     }
@@ -43,6 +39,7 @@ public class ExpoStoresGamesServicesModule:  Module {
                             "displayName": localPlayer.displayName
                         ])
                     } else {
+                        hasResumed = true
                         continuation.resume(throwing: NSError(domain: "GameCenter", code: 401, userInfo: [
                             NSLocalizedDescriptionKey: "User not authenticated"
                         ]))
