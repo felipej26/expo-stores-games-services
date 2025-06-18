@@ -58,8 +58,11 @@ public class ExpoStoresGamesServicesModule:  Module {
             }
             
             await MainActor.run {
-                let viewController = GKGameCenterViewController()
-                viewController.gameCenterDelegate = GameCenterDelegate.shared
+                let viewController = GKGameCenterViewController(
+                                leaderboardID: leaderboardID,
+                                playerScope: .global,
+                                timeScope: GKLeaderboard.TimeScope(rawValue: timeSpan) ?? .allTime
+                )
                 
                 if let rootVC = UIApplication.shared.delegate?.window??.rootViewController {
                     rootVC.present(viewController, animated: true, completion: nil)
