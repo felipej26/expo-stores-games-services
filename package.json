@@ -1,6 +1,6 @@
 {
   "name": "expo-stores-games-services",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Module to manage Google Play Games Services and Game Center Services",
   "main": "build/index.js",
   "types": "build/index.d.ts",
