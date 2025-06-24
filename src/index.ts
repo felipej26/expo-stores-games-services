@@ -2,6 +2,13 @@ import { TimeSpan } from "./constants";
 import ExpoStoresGamesServicesModule from "./ExpoStoresGamesServicesModule";
 import { UserScore } from "./types";
 
+export * from "./constants";
+export * from "./types";
+
+export function isAuthenticated(): Promise<string> {
+  return ExpoStoresGamesServicesModule.isAuthenticated();
+}
+
 export function signIn(): Promise<void> {
   return ExpoStoresGamesServicesModule.signIn();
 }

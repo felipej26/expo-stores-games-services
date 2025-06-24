@@ -3,6 +3,7 @@ import { UserScore } from "./types";
 import { TimeSpan } from "./constants";
 
 declare class ExpoStoresGamesServicesModule extends NativeModule {
+  isAuthenticated(): Promise<string>;
   signIn(): Promise<void>;
   showLeaderboard(leaderboardId: string, timeSpan?: TimeSpan): Promise<void>;
   submitScore(score: number, leaderboardId: string): Promise<void>;

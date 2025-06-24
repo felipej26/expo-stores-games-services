@@ -26,6 +26,25 @@ class ExpoStoresGamesServicesModule : Module() {
       }
     }
 
+    AsyncFunction("isAuthenticated") { promise: Promise ->
+      val activity = appContext.currentActivity
+      if (activity == null) {
+        promise.reject("NO_ACTIVITY", "No current activity", null)
+        return@AsyncFunction
+      }
+
+      val gamesSignInClient: GamesSignInClient = PlayGames.getGamesSignInClient(activity)
+
+      gamesSignInClient.isAuthenticated().addOnCompleteListener { isAuthenticatedTask ->
+        if (isAuthenticatedTask.isSuccessful) {
+          val isAuthenticated = isAuthenticatedTask.result.isAuthenticated
+          promise.resolve(if (isAuthenticated) "AUTHENTICATED" else "NOT_AUTHENTICATED")
+        } else {
+          promise.reject("AUTHENTICATION_ERROR", "Failed to check authentication status", null)
+        }
+      }
+    }
+
     AsyncFunction("signIn") { promise: Promise ->
       val activity = appContext.currentActivity
       if (activity == null) {
@@ -35,19 +54,11 @@ class ExpoStoresGamesServicesModule : Module() {
 
       val gamesSignInClient: GamesSignInClient = PlayGames.getGamesSignInClient(activity)
 
-      gamesSignInClient.isAuthenticated().addOnCompleteListener { isAuthenticatedTask ->
-        val isAuthenticated = (isAuthenticatedTask.isSuccessful && isAuthenticatedTask.result.isAuthenticated)
-
-        if (isAuthenticated) {
-          promise.resolve("ALREADY_SIGNED_IN")
+      gamesSignInClient.signIn().addOnCompleteListener { signInTask ->
+        if (signInTask.isSuccessful) {
+          promise.resolve("SIGNED_IN_SUCCESSFULLY")
         } else {
-          gamesSignInClient.signIn().addOnCompleteListener { signInTask ->
-            if (signInTask.isSuccessful) {
-              promise.resolve("SIGNED_IN_SUCCESSFULLY")
-            } else {
-              promise.reject("SIGN_IN_FAILED", "Failed to sign in", null)
-            }
-          }
+          promise.reject("SIGN_IN_FAILED", "Failed to sign in", null)
         }
       }
     }
