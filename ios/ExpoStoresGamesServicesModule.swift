@@ -4,6 +4,10 @@ import GameKit
 public class ExpoStoresGamesServicesModule:  Module {
     public func definition() -> ModuleDefinition {
         Name("ExpoStoresGamesServices")
+
+        AsyncFunction("isAuthenticated") { () async -> String in
+            return GKLocalPlayer.local.isAuthenticated ? "AUTHENTICATED" : "NOT_AUTHENTICATED"
+        }
         
         AsyncFunction("signIn") { () async throws -> [String: String] in
             let localPlayer = GKLocalPlayer.local
