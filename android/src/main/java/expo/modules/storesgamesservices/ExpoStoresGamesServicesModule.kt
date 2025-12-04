@@ -2,6 +2,7 @@ package expo.modules.storesgamesservices
 
 import com.google.android.gms.games.GamesSignInClient
 import com.google.android.gms.games.PlayGames
+import com.google.android.gms.games.Player
 import expo.modules.kotlin.Promise
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
@@ -38,7 +39,7 @@ class ExpoStoresGamesServicesModule : Module() {
       gamesSignInClient.isAuthenticated().addOnCompleteListener { isAuthenticatedTask ->
         if (isAuthenticatedTask.isSuccessful) {
           val isAuthenticated = isAuthenticatedTask.result.isAuthenticated
-          promise.resolve(if (isAuthenticated) "AUTHENTICATED" else "NOT_AUTHENTICATED")
+          promise.resolve(isAuthenticated)
         } else {
           promise.reject("AUTHENTICATION_ERROR", "Failed to check authentication status", null)
         }
@@ -49,14 +50,28 @@ class ExpoStoresGamesServicesModule : Module() {
       val activity = appContext.currentActivity
       if (activity == null) {
         promise.reject("NO_ACTIVITY", "No current activity", null)
-          return@AsyncFunction
+        return@AsyncFunction
       }
 
       val gamesSignInClient: GamesSignInClient = PlayGames.getGamesSignInClient(activity)
 
       gamesSignInClient.signIn().addOnCompleteListener { signInTask ->
         if (signInTask.isSuccessful) {
-          promise.resolve("SIGNED_IN_SUCCESSFULLY")
+          // Get player information after successful sign in
+          val playersClient = PlayGames.getPlayersClient(activity)
+          playersClient.currentPlayer.addOnCompleteListener { playerTask ->
+            if (playerTask.isSuccessful) {
+              val player: Player = playerTask.result
+              val userInfo = mapOf(
+                "playerID" to player.playerId,
+                "alias" to (player.alias ?: ""),
+                "displayName" to player.displayName
+              )
+              promise.resolve(userInfo)
+            } else {
+              promise.reject("GET_PLAYER_INFO_FAILED", "Failed to get player information", null)
+            }
+          }
         } else {
           promise.reject("SIGN_IN_FAILED", "Failed to sign in", null)
         }
@@ -75,6 +90,9 @@ class ExpoStoresGamesServicesModule : Module() {
         .addOnSuccessListener { intent ->
           pendingPromise = promise
           activity.startActivityForResult(intent, RC_LEADERBOARD_UI)
+        }
+        .addOnFailureListener { exception ->
+          promise.reject("SHOW_LEADERBOARD_FAILED", "Failed to show leaderboard: ${exception.message}", exception)
         }
     }
 
@@ -109,12 +127,15 @@ class ExpoStoresGamesServicesModule : Module() {
               "score" to scoreData.rawScore,
               "rank" to scoreData.rank,
               "formattedScore" to scoreData.displayScore,
-              "context" to scoreData,
+              "context" to 0L,
             )
             promise.resolve(result)
           } else {
             promise.resolve(null)
           }
+        }
+        .addOnFailureListener { exception ->
+          promise.reject("GET_USER_SCORE_FAILED", "Failed to get user score: ${exception.message}", exception)
         }
     }
   }

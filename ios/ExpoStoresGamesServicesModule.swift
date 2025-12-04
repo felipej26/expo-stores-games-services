@@ -5,8 +5,8 @@ public class ExpoStoresGamesServicesModule:  Module {
     public func definition() -> ModuleDefinition {
         Name("ExpoStoresGamesServices")
 
-        AsyncFunction("isAuthenticated") { () async -> String in
-            return GKLocalPlayer.local.isAuthenticated ? "AUTHENTICATED" : "NOT_AUTHENTICATED"
+        AsyncFunction("isAuthenticated") { () async -> Bool in
+            return GKLocalPlayer.local.isAuthenticated
         }
         
         AsyncFunction("signIn") { () async throws -> [String: String] in
@@ -89,7 +89,7 @@ public class ExpoStoresGamesServicesModule:  Module {
             return ["status": "success"]
         }
         
-        AsyncFunction("getUserScore") { (leaderboardID: String, timeSpan: Int) async throws -> [String: Any] in
+        AsyncFunction("getUserScore") { (leaderboardID: String, timeSpan: Int) async throws -> [String: Any]? in
             let leaderboards = try await GKLeaderboard.loadLeaderboards(IDs: [leaderboardID])
             
             guard let leaderboard = leaderboards.first else {
@@ -111,7 +111,7 @@ public class ExpoStoresGamesServicesModule:  Module {
                     "context": entry.context
                 ]
             } else {
-                return [:]  // No score
+                return nil  // No score
             }
         }
     }
