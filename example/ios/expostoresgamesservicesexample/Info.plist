@@ -27,7 +27,7 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>expo.modules.storesgamesservices.example</string>
+          <string>com.toilet.cryptogram</string>
         </array>
       </dict>
     </array>

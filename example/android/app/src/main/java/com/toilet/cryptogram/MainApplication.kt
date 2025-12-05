@@ -1,4 +1,4 @@
-package expo.modules.storesgamesservices.example
+package com.toilet.cryptogram
 
 import android.app.Application
 import android.content.res.Configuration

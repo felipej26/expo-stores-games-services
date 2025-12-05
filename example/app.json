@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "expo.modules.storesgamesservices.example"
+      "bundleIdentifier": "com.toilet.cryptogram"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +22,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "expo.modules.storesgamesservices.example"
+      "package": "com.toilet.cryptogram"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -32,7 +32,7 @@
         "../app.plugin.js",
         {
           "android": {
-            "projectId": "00000000000"
+            "projectId": "625053534761"
           }
         }
       ]
