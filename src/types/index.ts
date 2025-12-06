@@ -10,3 +10,13 @@ export type UserScore = {
   formattedScore: string;
   context: number;
 };
+
+export type Achievement = {
+  id: string;
+  name: string;
+  description: string;
+  unlocked: boolean;
+  unlockedAt?: number; // timestamp in milliseconds
+  progress?: number; // 0-100 for incremental achievements
+  totalSteps?: number; // total steps for incremental achievements
+};

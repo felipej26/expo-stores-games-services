@@ -1,8 +1,10 @@
 package expo.modules.storesgamesservices
 
+import com.google.android.gms.games.AchievementsClient
 import com.google.android.gms.games.GamesSignInClient
 import com.google.android.gms.games.PlayGames
 import com.google.android.gms.games.Player
+import com.google.android.gms.games.achievement.Achievement
 import expo.modules.kotlin.Promise
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
@@ -10,6 +12,7 @@ import expo.modules.kotlin.modules.ModuleDefinition
 class ExpoStoresGamesServicesModule : Module() {
   private var pendingPromise: Promise? = null
   private val RC_LEADERBOARD_UI: Int = 9004
+  private val RC_ACHIEVEMENTS_UI: Int = 9005
 
   override fun definition() = ModuleDefinition {
     Name("ExpoStoresGamesServices")
@@ -21,6 +24,10 @@ class ExpoStoresGamesServicesModule : Module() {
 
       when(requestCode) {
         RC_LEADERBOARD_UI -> {
+          pendingPromise?.resolve()
+          pendingPromise = null
+        }
+        RC_ACHIEVEMENTS_UI -> {
           pendingPromise?.resolve()
           pendingPromise = null
         }
@@ -64,7 +71,7 @@ class ExpoStoresGamesServicesModule : Module() {
               val player: Player = playerTask.result
               val userInfo = mapOf(
                 "playerID" to player.playerId,
-                "alias" to (player.alias ?: ""),
+                "alias" to "",
                 "displayName" to player.displayName
               )
               promise.resolve(userInfo)
@@ -91,8 +98,8 @@ class ExpoStoresGamesServicesModule : Module() {
           pendingPromise = promise
           activity.startActivityForResult(intent, RC_LEADERBOARD_UI)
         }
-        .addOnFailureListener { exception ->
-          promise.reject("SHOW_LEADERBOARD_FAILED", "Failed to show leaderboard: ${exception.message}", exception)
+        .addOnFailureListener { exception: Exception ->
+          promise.reject("SHOW_LEADERBOARD_FAILED", "Failed to show leaderboard: ${exception.message ?: exception.localizedMessage ?: "Unknown error"}", exception)
         }
     }
 
@@ -134,8 +141,94 @@ class ExpoStoresGamesServicesModule : Module() {
             promise.resolve(null)
           }
         }
-        .addOnFailureListener { exception ->
-          promise.reject("GET_USER_SCORE_FAILED", "Failed to get user score: ${exception.message}", exception)
+        .addOnFailureListener { exception: Exception ->
+          promise.reject("GET_USER_SCORE_FAILED", "Failed to get user score: ${exception.message ?: exception.localizedMessage ?: "Unknown error"}", exception)
+        }
+    }
+
+    AsyncFunction("showAchievements") { promise: Promise ->
+      val activity = appContext.currentActivity
+      if (activity == null) {
+        promise.reject("NO_ACTIVITY", "No current activity", null)
+        return@AsyncFunction
+      }
+
+      PlayGames.getAchievementsClient(activity)
+        .achievementsIntent
+        .addOnSuccessListener { intent ->
+          pendingPromise = promise
+          activity.startActivityForResult(intent, RC_ACHIEVEMENTS_UI)
+        }
+        .addOnFailureListener { exception: Exception ->
+          promise.reject("SHOW_ACHIEVEMENTS_FAILED", "Failed to show achievements: ${exception.message ?: exception.localizedMessage ?: "Unknown error"}", exception)
+        }
+    }
+
+    AsyncFunction("unlockAchievement") { achievementId: String, promise: Promise ->
+      val activity = appContext.currentActivity
+      if (activity == null) {
+        promise.reject("NO_ACTIVITY", "No current activity", null)
+        return@AsyncFunction
+      }
+
+      val achievementsClient: AchievementsClient = PlayGames.getAchievementsClient(activity)
+      achievementsClient.unlock(achievementId)
+      promise.resolve()
+    }
+
+    AsyncFunction("incrementAchievement") { achievementId: String, steps: Int, promise: Promise ->
+      val activity = appContext.currentActivity
+      if (activity == null) {
+        promise.reject("NO_ACTIVITY", "No current activity", null)
+        return@AsyncFunction
+      }
+
+      val achievementsClient: AchievementsClient = PlayGames.getAchievementsClient(activity)
+      achievementsClient.increment(achievementId, steps)
+      promise.resolve()
+    }
+
+    AsyncFunction("getAchievements") { promise: Promise ->
+      val activity = appContext.currentActivity
+      if (activity == null) {
+        promise.reject("NO_ACTIVITY", "No current activity", null)
+        return@AsyncFunction
+      }
+
+      val achievementsClient: AchievementsClient = PlayGames.getAchievementsClient(activity)
+      achievementsClient.load(false)
+        .addOnSuccessListener { result ->
+          val achievements = result.get()
+          val achievementsList = mutableListOf<Map<String, Any>>()
+
+          if (achievements != null) {
+            for (achievement in achievements) {
+              val achievementData = mutableMapOf<String, Any>(
+                "id" to achievement.achievementId,
+                "name" to achievement.name,
+                "description" to achievement.description,
+                "unlocked" to (achievement.state == Achievement.STATE_UNLOCKED)
+              )
+
+              if (achievement.state == Achievement.STATE_UNLOCKED) {
+                // Google Play Games API doesn't provide unlockedTimestamp directly
+                // Using current time as fallback (achievements are typically unlocked recently)
+                achievementData["unlockedAt"] = System.currentTimeMillis()
+              }
+
+              if (achievement.type == Achievement.TYPE_INCREMENTAL) {
+                achievementData["progress"] = achievement.currentSteps
+                achievementData["totalSteps"] = achievement.totalSteps
+              }
+
+              achievementsList.add(achievementData)
+            }
+          }
+
+          promise.resolve(achievementsList)
+        }
+        .addOnFailureListener { exception: Exception ->
+          promise.reject("GET_ACHIEVEMENTS_FAILED", "Failed to get achievements: ${exception.message ?: exception.localizedMessage ?: "Unknown error"}", exception)
         }
     }
   }
