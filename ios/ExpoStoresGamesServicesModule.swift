@@ -132,7 +132,7 @@ public class ExpoStoresGamesServicesModule:  Module {
             return ["status": "unlocked"]
         }
         
-        AsyncFunction("incrementAchievement") { (achievementID: String, steps: Int) async throws -> [String: Any] in
+        AsyncFunction("incrementAchievement") { (achievementID: String, stepsIncrement: Int, totalSteps: Int) async throws -> [String: Any] in
             // Load existing achievements to get current progress
             let achievements = try await GKAchievement.loadAchievements()
             var achievement: GKAchievement? = achievements.first { $0.identifier == achievementID }
@@ -148,11 +148,10 @@ public class ExpoStoresGamesServicesModule:  Module {
                 ])
             }
             
-            // Increment the percent complete
-            // Note: In iOS GameKit, percentComplete is 0-100
-            // Each step increments by 1 percentage point
-            // For example: if totalSteps is 10, you'd call this 10 times with steps=1
-            // Or you can call once with steps=10 to increment 10%
+            // Calculate the percent increment based on steps
+            // percentIncrement = (stepsIncrement / totalSteps) * 100
+            let percentIncrement = (Double(stepsIncrement) / Double(totalSteps)) * 100.0
+            
             let currentProgress = achievement.percentComplete
             
             // Don't increment if already at 100%
@@ -163,7 +162,7 @@ public class ExpoStoresGamesServicesModule:  Module {
                 ]
             }
             
-            let newProgress = min(100.0, currentProgress + Double(steps))
+            let newProgress = min(100.0, currentProgress + percentIncrement)
             achievement.percentComplete = newProgress
             
             // Show completion banner only when reaching 100%

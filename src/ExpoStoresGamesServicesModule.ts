@@ -10,7 +10,7 @@ declare class ExpoStoresGamesServicesModule extends NativeModule {
   getUserScore(leaderboardId: string, timeSpan?: TimeSpan): Promise<UserScore | null>;
   showAchievements(): Promise<void>;
   unlockAchievement(achievementId: string): Promise<void>;
-  incrementAchievement(achievementId: string, steps?: number): Promise<void>;
+  incrementAchievement(achievementId: string, stepsIncrement: number, totalSteps: number): Promise<void>;
   getAchievements(): Promise<Achievement[]>;
 }
 

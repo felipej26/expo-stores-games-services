@@ -176,7 +176,7 @@ class ExpoStoresGamesServicesModule : Module() {
       promise.resolve()
     }
 
-    AsyncFunction("incrementAchievement") { achievementId: String, steps: Int, promise: Promise ->
+    AsyncFunction("incrementAchievement") { achievementId: String, stepsIncrement: Int, totalSteps: Int, promise: Promise ->
       val activity = appContext.currentActivity
       if (activity == null) {
         promise.reject("NO_ACTIVITY", "No current activity", null)
@@ -184,7 +184,8 @@ class ExpoStoresGamesServicesModule : Module() {
       }
 
       val achievementsClient: AchievementsClient = PlayGames.getAchievementsClient(activity)
-      achievementsClient.increment(achievementId, steps)
+      // Android expects the number of steps to increment, not the percentage
+      achievementsClient.increment(achievementId, stepsIncrement)
       promise.resolve()
     }
 

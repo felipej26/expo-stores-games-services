@@ -62,21 +62,46 @@ export function unlockAchievement(achievementId: string): Promise<void> {
 
 export function incrementAchievement(
   achievementId: string,
-  steps: number = 1
+  stepsIncrement: number,
+  totalSteps: number
 ): Promise<void> {
   if (!achievementId || achievementId.trim().length === 0) {
     throw new Error("achievementId cannot be empty");
   }
-  if (typeof steps !== "number" || isNaN(steps) || !isFinite(steps)) {
-    throw new Error("steps must be a valid number");
+  if (
+    typeof stepsIncrement !== "number" ||
+    isNaN(stepsIncrement) ||
+    !isFinite(stepsIncrement)
+  ) {
+    throw new Error("stepsIncrement must be a valid number");
   }
-  if (steps <= 0) {
-    throw new Error("steps must be greater than 0");
+  if (
+    typeof totalSteps !== "number" ||
+    isNaN(totalSteps) ||
+    !isFinite(totalSteps)
+  ) {
+    throw new Error("totalSteps must be a valid number");
   }
-  if (steps !== Math.floor(steps)) {
-    throw new Error("steps must be an integer");
+  if (stepsIncrement <= 0) {
+    throw new Error("stepsIncrement must be greater than 0");
   }
-  return ExpoStoresGamesServicesModule.incrementAchievement(achievementId, steps);
+  if (totalSteps <= 0) {
+    throw new Error("totalSteps must be greater than 0");
+  }
+  if (stepsIncrement !== Math.floor(stepsIncrement)) {
+    throw new Error("stepsIncrement must be an integer");
+  }
+  if (totalSteps !== Math.floor(totalSteps)) {
+    throw new Error("totalSteps must be an integer");
+  }
+  if (stepsIncrement > totalSteps) {
+    throw new Error("stepsIncrement cannot be greater than totalSteps");
+  }
+  return ExpoStoresGamesServicesModule.incrementAchievement(
+    achievementId,
+    stepsIncrement,
+    totalSteps
+  );
 }
 
 export function getAchievements(): Promise<Achievement[]> {
