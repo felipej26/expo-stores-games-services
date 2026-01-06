@@ -23,8 +23,23 @@ npm install expo-stores-games-services
 
 ### Configure for Android
 
+Add your 12 digit project id number that can be found in your Play Console under Play Games Services for your app
 
-No additional setup necessary.
+```
+"expo":{
+ "plugins": [
+      [
+        "expo-stores-games-services",
+        {
+          "android": {
+            "projectId": "123456789123"
+          },
+          "ios": {}
+        }
+      ],
+    ]
+}
+```
 
 
 ### Configure for iOS
